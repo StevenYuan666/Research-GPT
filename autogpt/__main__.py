@@ -13,7 +13,9 @@ from autogpt.config import Config
 from autogpt.json_parser import fix_and_parse_json
 from autogpt.logger import logger
 from autogpt.memory import get_memory, get_supported_memory_backends
+from autogpt.memory.local import MAX_LENGTH
 from autogpt.spinner import Spinner
+from autogpt.file_operations import ingest_data
 
 cfg = Config()
 config = None
@@ -535,7 +537,7 @@ class Agent:
                     f"Command {command_name} threw the following error: {arguments}"
                 )
             elif command_name == "human_feedback":
-                result = f"Human feedback: {self.user_input}"
+                result = f"Human feedback: {self.user_input} You don't need to reply anything about this human feedback, just rethink and output the next command in the json format the same way you have done before."
             else:
                 result = (
                     f"Command {command_name} "
@@ -543,14 +545,20 @@ class Agent:
                 )
                 if self.next_action_count > 0:
                     self.next_action_count -= 1
+            
+            if command_name == "arxiv_search" or command_name == "eprint_search":
+                self.user_input += ". Hint: You already downloaded all the papers in the current working directory. The name of the files are exactly the title of the papers plus '.pdf'. Now you can directly read them using read_pdf command. The file name will be title+'.pdf'."
 
             memory_to_add = (
                 f"Assistant Reply: {assistant_reply} "
                 f"\nResult: {result} "
                 f"\nHuman Feedback: {self.user_input} "
             )
-
-            self.memory.add(memory_to_add)
+            print("Memory to add: ", len(memory_to_add))
+            if len(memory_to_add) > MAX_LENGTH:
+                ingest_data(memory_to_add, self.memory, MAX_LENGTH)
+            else:
+                self.memory.add(memory_to_add)
 
             # Check if there's a result from the command append it to the message
             # history

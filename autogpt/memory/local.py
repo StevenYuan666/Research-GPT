@@ -9,7 +9,7 @@ from autogpt.memory.base import MemoryProviderSingleton, get_ada_embedding
 
 EMBED_DIM = 1536
 SAVE_OPTIONS = orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_SERIALIZE_DATACLASS
-
+MAX_LENGTH=8191
 
 def create_default_embeddings():
     return np.zeros((0, EMBED_DIM)).astype(np.float32)
@@ -58,9 +58,9 @@ class LocalCache(MemoryProviderSingleton):
         """
         if "Command Error:" in text:
             return ""
-        self.data.texts.append(text)
+        self.data.texts.append(text[:MAX_LENGTH])
 
-        embedding = get_ada_embedding(text)
+        embedding = get_ada_embedding(text[:MAX_LENGTH])
 
         vector = np.array(embedding).astype(np.float32)
         vector = vector[np.newaxis, :]
@@ -108,7 +108,7 @@ class LocalCache(MemoryProviderSingleton):
 
         Returns: List[str]
         """
-        embedding = get_ada_embedding(text)
+        embedding = get_ada_embedding(text[:MAX_LENGTH])
 
         scores = np.dot(self.data.embeddings, embedding)
 

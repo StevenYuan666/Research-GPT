@@ -160,7 +160,7 @@ def summarize_text(url, text, question):
     print(f"Text length: {text_length} characters")
 
     summaries = []
-    chunks = list(split_text(text))
+    chunks = list(split_text(text, 3800))
 
     for i, chunk in enumerate(chunks):
         print(f"Adding chunk {i + 1} / {len(chunks)} to memory")
@@ -187,12 +187,15 @@ def summarize_text(url, text, question):
     print(f"Summarized {len(chunks)} chunks.")
 
     combined_summary = "\n".join(summaries)
-    messages = [create_message(combined_summary, question)]
+    if len(combined_summary) > 3800:
+        return summarize_text("Recursive Summary", combined_summary, question)
+    else:
+        messages = [create_message(combined_summary, question)]
 
-    final_summary = create_chat_completion(
-        model=cfg.fast_llm_model,
-        messages=messages,
-        max_tokens=cfg.browse_summary_max_token,
-    )
+        final_summary = create_chat_completion(
+            model=cfg.fast_llm_model,
+            messages=messages,
+            max_tokens=cfg.browse_summary_max_token,
+        )
 
-    return final_summary
+        return final_summary

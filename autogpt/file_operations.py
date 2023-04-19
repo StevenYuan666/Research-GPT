@@ -87,6 +87,35 @@ def ingest_file(filename, memory, max_length=4000, overlap=200):
     except Exception as e:
         print(f"Error while ingesting file '{filename}': {str(e)}")
 
+def ingest_data(content, memory, max_length=4000, overlap=200):
+    """
+    Ingest a file by reading its content, splitting it into chunks with a specified
+    maximum length and overlap, and adding the chunks to the memory storage.
+
+    :param filename: The name of the file to ingest
+    :param memory: An object with an add() method to store the chunks in memory
+    :param max_length: The maximum length of each chunk, default is 4000
+    :param overlap: The number of overlapping characters between chunks, default is 200
+    """
+    try:
+        content_length = len(content)
+        print(f"File length: {content_length} characters")
+
+        chunks = list(split_file(content, max_length=max_length, overlap=overlap))
+
+        num_chunks = len(chunks)
+        for i, chunk in enumerate(chunks):
+            print(f"Ingesting chunk {i + 1} / {num_chunks} into memory")
+            memory_to_add = (
+                f"Data: Last Command Execution Trace\n" f"Content part#{i + 1}/{num_chunks}: {chunk}"
+            )
+
+            memory.add(memory_to_add)
+
+        print(f"Done ingesting {num_chunks} chunks from Last Command Execution Trace.")
+    except Exception as e:
+        print(f"Error while ingesting file 'Last Command Execution Trace': {str(e)}")
+
 
 def write_to_file(filename, text):
     """Write text to a file"""

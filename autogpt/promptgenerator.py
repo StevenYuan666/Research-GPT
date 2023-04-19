@@ -36,7 +36,7 @@ class PromptGenerator:
         """
         self.constraints.append(constraint)
 
-    def add_command(self, command_label, command_name, args=None):
+    def add_command(self, command_label, command_name, args=None, description=None):
         """
         Add a command to the commands list with a label, name, and optional arguments.
 
@@ -48,6 +48,8 @@ class PromptGenerator:
         """
         if args is None:
             args = {}
+        if description is None:
+            description = ""
 
         command_args = {arg_key: arg_value for arg_key, arg_value in args.items()}
 
@@ -55,6 +57,7 @@ class PromptGenerator:
             "label": command_label,
             "name": command_name,
             "args": command_args,
+            "description": description,
         }
 
         self.commands.append(command)
@@ -72,7 +75,7 @@ class PromptGenerator:
         args_string = ", ".join(
             f'"{key}": "{value}"' for key, value in command["args"].items()
         )
-        return f'{command["label"]}: "{command["name"]}", args: {args_string}'
+        return f'{command["label"]}: "{command["name"]}", args: {args_string}, description: {command["description"]}'
 
     def add_resource(self, resource: str) -> None:
         """

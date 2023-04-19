@@ -24,3 +24,6 @@ pre-commit
 black
 sourcery
 isort
+scholarly
+arxiv
+PyPDF2
